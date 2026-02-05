@@ -16,7 +16,6 @@ export default function CameraScanner({ onCapture, onCancel }) {
     const fallbackInputRef = useRef(null);
 
     useEffect(() => {
-        // Browsers block camera on non-localhost HTTP
         if (!window.isSecureContext && window.location.hostname !== 'localhost') {
             setIsInsecure(true);
             setError('瀏覽器安全性限制：在連結為 HTTP（非 https）時無法開啟自定義相機鏡頭。');
@@ -163,27 +162,6 @@ export default function CameraScanner({ onCapture, onCancel }) {
         );
     }
 
-    const currentFormat = INSTAX_FORMATS[format];
-    const maxW = 85;
-    const maxH = 65;
-
-    let frameWidth, frameHeight;
-    if (currentFormat.ratio < 1) { // Portrait
-        frameHeight = maxH;
-        frameWidth = frameHeight * currentFormat.ratio;
-        if (frameWidth > maxW) {
-            frameWidth = maxW;
-            frameHeight = frameWidth / currentFormat.ratio;
-        }
-    } else { // Landscape/Square
-        frameWidth = maxW;
-        frameHeight = frameWidth / currentFormat.ratio;
-        if (frameHeight > maxH) {
-            frameHeight = maxH;
-            frameWidth = frameHeight * currentFormat.ratio;
-        }
-    }
-
     return (
         <div className="camera-scanner" style={{ position: 'fixed', inset: 0, backgroundColor: '#000', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: 'var(--space-lg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)' }}>
@@ -205,52 +183,6 @@ export default function CameraScanner({ onCapture, onCancel }) {
                     muted
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-
-                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                    <defs>
-                        <mask id="scannerMask">
-                            <rect width="100%" height="100%" fill="white" />
-                            <rect
-                                x={`${(100 - frameWidth) / 2}%`}
-                                y={`${(100 - frameHeight) / 2}%`}
-                                width={`${frameWidth}%`}
-                                height={`${frameHeight}%`}
-                                rx="8"
-                                fill="black"
-                            />
-                        </mask>
-                    </defs>
-                    <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#scannerMask)" />
-
-                    {/* The Bold Glowing Guide Frame */}
-                    <rect
-                        x={`${(100 - frameWidth) / 2}%`}
-                        y={`${(100 - frameHeight) / 2}%`}
-                        width={`${frameWidth}%`}
-                        height={`${frameHeight}%`}
-                        rx="8"
-                        fill="none"
-                        stroke="#00ff9d"
-                        strokeWidth="3.5"
-                        strokeDasharray="12 8"
-                        style={{
-                            transition: 'all 0.3s ease',
-                            filter: 'drop-shadow(0 0 4px rgba(0, 255, 157, 0.6))'
-                        }}
-                    />
-
-                    {/* Corner accents - Extra Prominent */}
-                    <g stroke="#00ff9d" strokeWidth="8" fill="none" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 6px rgba(0, 255, 157, 0.8))' }}>
-                        <path d={`M${(100 - frameWidth) / 2}%,${(100 - frameHeight) / 2 + 6}% L${(100 - frameWidth) / 2}%,${(100 - frameHeight) / 2}% L${(100 - frameWidth) / 2 + 6}%,${(100 - frameHeight) / 2}%`} />
-                        <path d={`M${(100 + frameWidth) / 2 - 6}%,${(100 - frameHeight) / 2}% L${(100 + frameWidth) / 2}%,${(100 - frameHeight) / 2}% L${(100 + frameWidth) / 2}%,${(100 - frameHeight) / 2 + 6}%`} />
-                        <path d={`M${(100 + frameWidth) / 2}%,${(100 + frameHeight) / 2 - 6}% L${(100 + frameWidth) / 2}%,${(100 + frameHeight) / 2}% L${(100 + frameWidth) / 2 - 6}%,${(100 + frameHeight) / 2}%`} />
-                        <path d={`M${(100 - frameWidth) / 2 + 6}%,${(100 + frameHeight) / 2}% L${(100 - frameWidth) / 2}%,${(100 + frameHeight) / 2}% L${(100 - frameWidth) / 2}%,${(100 + frameHeight) / 2 - 6}%`} />
-                    </g>
-                </svg>
-
-                <div style={{ position: 'absolute', bottom: 'var(--space-xl)', left: 0, right: 0, textAlign: 'center', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.5)', fontSize: '0.875rem' }}>
-                    請將拍立得對齊邊框外緣
-                </div>
             </div>
 
             <div style={{ backgroundColor: '#111', padding: 'var(--space-xl) var(--space-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', alignItems: 'center' }}>
